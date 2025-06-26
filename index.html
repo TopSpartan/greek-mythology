@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+  <meta charset="UTF-8" />
+  <title>NEWQUIZ - Ερωτήσεις για την Ελληνική Μυθολογία</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 50px 20px;
+      background-color: #696969;
+      min-height: 100vh;
+    }
+.box1 {
+      width: 700px;
+      background-color: white;
+      border: 5px solid gray;
+      box-shadow: 0 0 5px rgba(0,0,0,0.3);
+      font-weight: bold;
+      color: #333;
+      font-size: 24px;        
+      padding: 30px;
+      border-radius: 10px;
+    }
+.box2 {
+  width: 800px;     
+  height: 100px;    
+  background-color: white;
+  border: 5px solid gray;
+  box-shadow: 0 0 5px rgba(0,0,0,0.3);
+  font-weight: bold;
+  color: #333;
+  font-size: 24px;        
+  padding: 30px;
+  border-radius: 10px;
+  overflow-y: auto;
+ }
+h1 {
+      font-family: 'Batang', serif;
+      font-size: 40px;
+      color: black;
+      text-shadow: 2px 2px 4px black;
+      margin-bottom: 30px;
+    }
+    #question {
+      margin-bottom: 30px;
+    }
+    .button-container {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      justify-content: center;
+      align-items: center;
+    }
+    .fixed-button {
+      width: 100%;
+      max-width: 400px;
+      height: 50px;
+      font-size: 18px;
+      font-weight: bold;
+      border: 2px solid black;
+      border-radius: 8px;
+      cursor: pointer;
+      background-color: gray;
+      color: white;
+      transition: background-color 0.3s ease;
+    }
+    .fixed-button.correct {
+      background-color: green !important;
+    }
+    .fixed-button.wrong {
+      background-color: red !important;
+    }
+    .fixed-button:disabled {
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+    #feedback {
+      margin-top: 25px;
+      font-size: 18px;
+      font-weight: bold;
+      min-height: 60px;
+    }
+    #nextBtn {
+      margin-top: 40px;
+      width: 200px;
+      background-color: #333;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 18px;
+      font-weight: bold;
+      padding: 10px;
+      display: none;
+      transition: background-color 0.3s ease;
+    }
+    #nextBtn:hover {
+      background-color: #555;
+    }
+  </style>
+</head>
+<body>
+  <div class="box1">
+    <h1>NEWQUIZ - Ελληνική Μυθολογία</h1>
+    <p id="question"></p>
+    <div id="options" class="button-container"></div>
+    <div id="feedback"></div>
+    <button id="nextBtn">Επόμενη Ερώτηση</button>
+  </div>
+
+  <script>
+const quizData = [
+  {
+    question: "Ποιες από τις παρακάτω δεν είναι κόρη του Δία;",
+    options: [
+      { text: "Περσεφόνη", correct: false },
+      { text: "Ειλείθυια", correct: false },
+      { text: "Κύρηνη", correct: true }
+    ],
+    explanation: "Η Περσεφόνη ήταν κόρη του Δία και της Δήμητρας. Η Ειλείθυια κόρη του Δία και της Ήρας. Η Κύρηνη όχι."
+  },
+  {
+    question: "Ποιος είναι ο θεός του κρασιού;",
+    options: [
+      { text: "Εστία", correct: false },
+      { text: "Διόνυσος", correct: true },
+      { text: "Ασκληπιός", correct: false }
+    ],
+    explanation: "Ο Διόνυσος ήταν θεός του οίνου και της γιορτής."
+  },
+  {
+    question: "Ποια θεά ήταν η οινοχόος στον Όλυμπο;",
+    options: [
+      { text: "Άρτεμις", correct: false },
+      { text: "Ήβη", correct: true },
+      { text: "Ήρα", correct: false }
+    ],
+    explanation: "Η Ήβη σέρβιρε το νέκταρ στους θεούς."
+  },
+  {
+    question: "Ποιο ήταν το πιο ισχυρό όπλο στην αρχαία ελληνική μυθολογία;",
+    options: [
+      { text: "Το ξίφος του Περσέα", correct: false },
+      { text: "Η τρίαινα του Ποσειδώνα", correct: false },
+      { text: "Ο Κεραυνός του Δία", correct: true }
+    ],
+    explanation: "Ο κεραυνός του Δία ήταν το σύμβολο εξουσίας του."
+  },
+  {
+    question: "Ο μόνος που κατέβηκε στον Άδη και επέστρεψε ζωντανός;",
+    options: [
+      { text: "Ο Ηρακλής", correct: true },
+      { text: "Οδυσσέας", correct: false },
+      { text: "Ορφέας", correct: false }
+    ],
+    explanation: "Ο Ηρακλής πήρε τον Κέρβερο και βγήκε ζωντανός (12ος άθλος)."
+  }
+];
+
+let currentQuestion = 0;
+let score = 0;
+const questionEl = document.getElementById("question");
+const answersEl = document.getElementById("options");
+const feedbackEl = document.getElementById("feedback");
+const nextBtn = document.getElementById("nextBtn");
+const resultEl = document.createElement("div");
+resultEl.id = "result";
+document.querySelector(".box1").appendChild(resultEl);
+function loadQuestion() {
+  const q = quizData[currentQuestion];
+  questionEl.textContent = q.question;
+  answersEl.innerHTML = "";
+  feedbackEl.textContent = "";
+  nextBtn.style.display = "none";
+  resultEl.textContent = "";
+  q.options.forEach(option => {
+    const btn = document.createElement("button");
+    btn.className = "fixed-button";
+    btn.textContent = option.text;
+    btn.onclick = () => handleAnswer(btn, option.correct, q.explanation);
+    answersEl.appendChild(btn);
+  });
+}
+function handleAnswer(button, isCorrect, explanation) {
+  const buttons = answersEl.querySelectorAll("button");
+  buttons.forEach(btn => btn.disabled = true);
+  if (isCorrect) {
+    button.classList.add("correct");
+    feedbackEl.textContent = "✅ Σωστό! " + explanation;
+    score++;
+  } else {
+    button.classList.add("wrong");
+    const correctBtn = Array.from(buttons).find(btn => {
+      return quizData[currentQuestion].options.find(opt => opt.text === btn.textContent && opt.correct);
+    });
+    if (correctBtn) correctBtn.classList.add("correct");
+    feedbackEl.textContent = "❌ Λάθος! " + explanation;
+  }
+  nextBtn.style.display = "inline-block";
+}
+nextBtn.onclick = () => {
+  currentQuestion++;
+  if (currentQuestion < quizData.length) {
+    loadQuestion();
+  } else {
+    showResult();
+  }
+};
+function showResult() {
+  questionEl.textContent = "";
+  answersEl.innerHTML = "";
+  feedbackEl.textContent = "";
+  nextBtn.style.display = "none";
+  resultEl.textContent = `🎉 Τελείωσες! Σωστές απαντήσεις: ${score} στις ${quizData.length}.`;
+}
+loadQuestion();
+</script>
+<div class="box2">
+<h1></h1>
+</div>  
+</body>
+</html>
